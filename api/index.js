@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectDB from "../backend/config/db.js";
-import productRoutes from "../backend/routes/productRoutes.js";
-import userRoutes from "../backend/routes/userRoutes.js";
+import connectDB from "../config/db.js";
+import productRoutes from "../routes/productRoutes.js";
+import userRoutes from "../routes/userRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -17,9 +17,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/admin", userRoutes);
 
 app.get("/", (req, res) => {
-  res.send("🧢 TSHIRT STORE API is running on Vercel!");
+  res.send("🛍️ TeeTrend API is running successfully...");
 });
 
-// ❌ No app.listen()
-// ✅ Export app for Vercel
 export default app;
