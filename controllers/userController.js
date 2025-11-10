@@ -2,9 +2,8 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" }); 
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" }); // 1 day
 };
-
 
 // Admin Register (sirf pehli baar)
 export const registerAdmin = async (req, res) => {
@@ -27,24 +26,38 @@ export const registerAdmin = async (req, res) => {
       token: generateToken(admin._id),
     });
   } catch (err) {
-    console.error(err);
+    console.error("Register Error:", err);
     res.status(500).json({ message: "Server error." });
   }
 };
 
-// Login Controller (tumhara existing login)
+// Login Controller
 export const loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const admin = await User.findOne({ email, isAdmin: true });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required." });
+    }
 
-  if (admin && (await admin.matchPassword(password))) {
+    const admin = await User.findOne({ email, isAdmin: true });
+
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const isMatch = await admin.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
     res.json({
       _id: admin._id,
       email: admin.email,
       token: generateToken(admin._id),
     });
-  } else {
-    res.status(401).json({ message: "Invalid admin credentials" });
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ message: "Server error." });
   }
 };
